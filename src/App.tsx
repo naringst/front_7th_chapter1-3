@@ -563,7 +563,6 @@ function App() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               aria-labelledby="category-label"
-              aria-label="카테고리"
             >
               {categories.map((cat) => (
                 <MenuItem key={cat} value={cat} aria-label={`${cat}-option`}>
@@ -647,10 +646,11 @@ function App() {
           )}
 
           <FormControl fullWidth>
-            <FormLabel htmlFor="notification">알림 설정</FormLabel>
+            <FormLabel id="notification-label">알림 설정</FormLabel>
             <Select
               id="notification"
               size="small"
+              aria-labelledby="notification-label"
               value={notificationTime}
               onChange={(e) => setNotificationTime(Number(e.target.value))}
             >
