@@ -1,29 +1,34 @@
-import {
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 import { useEventForm } from '../hooks/useEventForm';
 import { RepeatType } from '../types';
+import { FormCheckbox } from './FormCheckbox';
+import { FormSelect, type SelectOption } from './FormSelect';
+import { FormSubmitButton } from './FormSubmitButton';
+import { FormTextField } from './FormTextField';
+import { FormTimeField } from './FormTimeField';
 import { getTimeErrorMessage } from '../utils/timeValidation';
 
-const categories = ['업무', '개인', '가족', '기타'];
+const categories: SelectOption[] = [
+  { value: '업무', label: '업무' },
+  { value: '개인', label: '개인' },
+  { value: '가족', label: '가족' },
+  { value: '기타', label: '기타' },
+];
 
-const notificationOptions = [
+const notificationOptions: SelectOption[] = [
   { value: 1, label: '1분 전' },
   { value: 10, label: '10분 전' },
   { value: 60, label: '1시간 전' },
   { value: 120, label: '2시간 전' },
   { value: 1440, label: '1일 전' },
+];
+
+const repeatTypeOptions: SelectOption[] = [
+  { value: 'daily', label: '매일' },
+  { value: 'weekly', label: '매주' },
+  { value: 'monthly', label: '매월' },
+  { value: 'yearly', label: '매년' },
 ];
 
 type EventFormState = ReturnType<typeof useEventForm>;
@@ -69,192 +74,107 @@ export function EventForm({ formState, onSubmit }: EventFormProps) {
     <Stack spacing={2} sx={{ width: '20%' }}>
       <Typography variant="h4">{editingEvent ? '일정 수정' : '일정 추가'}</Typography>
 
-      <FormControl fullWidth>
-        <FormLabel htmlFor="title">제목</FormLabel>
-        <TextField
-          id="title"
-          size="small"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </FormControl>
+      <FormTextField label="제목" id="title" value={title} onChange={setTitle} type="text" />
 
-      <FormControl fullWidth>
-        <FormLabel htmlFor="date">날짜</FormLabel>
-        <TextField
-          id="date"
-          size="small"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-      </FormControl>
+      <FormTextField label="날짜" id="date" value={date} onChange={setDate} type="date" />
 
       <Stack direction="row" spacing={2}>
-        <FormControl fullWidth>
-          <FormLabel htmlFor="start-time">시작 시간</FormLabel>
-          <Tooltip title={startTimeError || ''} open={!!startTimeError} placement="top">
-            <TextField
-              id="start-time"
-              size="small"
-              type="time"
-              value={startTime}
-              onChange={handleStartTimeChange}
-              onBlur={() => getTimeErrorMessage(startTime, endTime)}
-              error={!!startTimeError}
-            />
-          </Tooltip>
-        </FormControl>
-        <FormControl fullWidth>
-          <FormLabel htmlFor="end-time">종료 시간</FormLabel>
-          <Tooltip title={endTimeError || ''} open={!!endTimeError} placement="top">
-            <TextField
-              id="end-time"
-              size="small"
-              type="time"
-              value={endTime}
-              onChange={handleEndTimeChange}
-              onBlur={() => getTimeErrorMessage(startTime, endTime)}
-              error={!!endTimeError}
-            />
-          </Tooltip>
-        </FormControl>
+        <FormTimeField
+          label="시작 시간"
+          id="start-time"
+          value={startTime}
+          onChange={handleStartTimeChange}
+          onBlur={() => getTimeErrorMessage(startTime, endTime)}
+          error={startTimeError}
+        />
+        <FormTimeField
+          label="종료 시간"
+          id="end-time"
+          value={endTime}
+          onChange={handleEndTimeChange}
+          onBlur={() => getTimeErrorMessage(startTime, endTime)}
+          error={endTimeError}
+        />
       </Stack>
 
-      <FormControl fullWidth>
-        <FormLabel htmlFor="description">설명</FormLabel>
-        <TextField
-          id="description"
-          size="small"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </FormControl>
+      <FormTextField
+        label="설명"
+        id="description"
+        value={description}
+        onChange={setDescription}
+        type="text"
+      />
 
-      <FormControl fullWidth>
-        <FormLabel htmlFor="location">위치</FormLabel>
-        <TextField
-          id="location"
-          size="small"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-      </FormControl>
+      <FormTextField
+        label="위치"
+        id="location"
+        value={location}
+        onChange={setLocation}
+        type="text"
+      />
 
-      <FormControl fullWidth>
-        <FormLabel id="category-label">카테고리</FormLabel>
-        <Select
-          id="category"
-          size="small"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          aria-labelledby="category-label"
-        >
-          {categories.map((cat) => (
-            <MenuItem key={cat} value={cat} aria-label={`${cat}-option`}>
-              {cat}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <FormSelect
+        label="카테고리"
+        id="category"
+        value={category}
+        onChange={(value) => setCategory(String(value))}
+        options={categories}
+      />
 
       {!editingEvent && (
-        <FormControl>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isRepeating}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setIsRepeating(checked);
-                  if (checked) {
-                    setRepeatType('daily');
-                  } else {
-                    setRepeatType('none');
-                  }
-                }}
-              />
+        <FormCheckbox
+          label="반복 일정"
+          checked={isRepeating}
+          onChange={(checked) => {
+            setIsRepeating(checked);
+            if (checked) {
+              setRepeatType('daily');
+            } else {
+              setRepeatType('none');
             }
-            label="반복 일정"
-          />
-        </FormControl>
+          }}
+        />
       )}
 
       {isRepeating && !editingEvent && (
         <Stack spacing={2}>
-          <FormControl fullWidth>
-            <FormLabel>반복 유형</FormLabel>
-            <Select
-              size="small"
-              value={repeatType}
-              aria-label="반복 유형"
-              onChange={(e) => setRepeatType(e.target.value as RepeatType)}
-            >
-              <MenuItem value="daily" aria-label="daily-option">
-                매일
-              </MenuItem>
-              <MenuItem value="weekly" aria-label="weekly-option">
-                매주
-              </MenuItem>
-              <MenuItem value="monthly" aria-label="monthly-option">
-                매월
-              </MenuItem>
-              <MenuItem value="yearly" aria-label="yearly-option">
-                매년
-              </MenuItem>
-            </Select>
-          </FormControl>
+          <FormSelect
+            label="반복 유형"
+            id="repeat-type"
+            value={repeatType}
+            onChange={(value) => setRepeatType(value as RepeatType)}
+            options={repeatTypeOptions}
+            ariaLabel="반복 유형"
+          />
           <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <FormLabel htmlFor="repeat-interval">반복 간격</FormLabel>
-              <TextField
-                id="repeat-interval"
-                size="small"
-                type="number"
-                value={repeatInterval}
-                onChange={(e) => setRepeatInterval(Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1 } }}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <FormLabel htmlFor="repeat-end-date">반복 종료일</FormLabel>
-              <TextField
-                id="repeat-end-date"
-                size="small"
-                type="date"
-                value={repeatEndDate}
-                onChange={(e) => setRepeatEndDate(e.target.value)}
-              />
-            </FormControl>
+            <FormTextField
+              label="반복 간격"
+              id="repeat-interval"
+              value={String(repeatInterval)}
+              onChange={(value) => setRepeatInterval(Number(value))}
+              type="number"
+              min={1}
+            />
+            <FormTextField
+              label="반복 종료일"
+              id="repeat-end-date"
+              value={repeatEndDate}
+              onChange={setRepeatEndDate}
+              type="date"
+            />
           </Stack>
         </Stack>
       )}
 
-      <FormControl fullWidth>
-        <FormLabel id="notification-label">알림 설정</FormLabel>
-        <Select
-          id="notification"
-          size="small"
-          aria-labelledby="notification-label"
-          value={notificationTime}
-          onChange={(e) => setNotificationTime(Number(e.target.value))}
-        >
-          {notificationOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <FormSelect
+        label="알림 설정"
+        id="notification"
+        value={notificationTime}
+        onChange={(value) => setNotificationTime(Number(value))}
+        options={notificationOptions}
+      />
 
-      <Button
-        data-testid="event-submit-button"
-        onClick={onSubmit}
-        variant="contained"
-        color="primary"
-      >
-        {editingEvent ? '일정 수정' : '일정 추가'}
-      </Button>
+      <FormSubmitButton label={editingEvent ? '일정 수정' : '일정 추가'} onClick={onSubmit} />
     </Stack>
   );
 }
