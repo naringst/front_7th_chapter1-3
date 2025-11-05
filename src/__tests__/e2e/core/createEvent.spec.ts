@@ -112,19 +112,9 @@ test.describe('일반 이벤트 생성', () => {
     const eventList = page.getByTestId('event-list');
     await expect(eventList.getByText('테스트 제목입니다')).toBeVisible();
   });
-});
 
-// 일정 겹침 경고 - E2E에서는 핵심 사용자 시나리오만 테스트
-// (세밀한 겹침 로직은 unit/easy.eventOverlap.spec.ts에서 이미 테스트됨)
-
-test.describe('일정 겹침 경고', () => {
-  test.beforeEach(async ({ page, request }) => {
-    // 각 테스트 전에 데이터 초기화
-    await clearEvents(request);
-
-    // 페이지를 초기 상태로 설정
-    await page.goto(startUrl);
-  });
+  // 일정 겹침 경고 - E2E에서는 핵심 사용자 시나리오만 테스트
+  // (세밀한 겹침 로직은 unit/easy.eventOverlap.spec.ts에서 이미 테스트됨)
 
   test('일정 겹침 시 경고 Dialog가 표시되고, "계속 진행"으로 저장할 수 있다', async ({
     page,
