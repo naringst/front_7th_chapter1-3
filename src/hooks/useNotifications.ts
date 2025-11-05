@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { Event } from '../types';
+import { Event, NotificationItem } from '../types';
 import { createNotificationMessage, getUpcomingEvents } from '../utils/notificationUtils';
 
 export const useNotifications = (events: Event[]) => {
-  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [notifiedEvents, setNotifiedEvents] = useState<string[]>([]);
 
   const checkUpcomingEvents = () => {
