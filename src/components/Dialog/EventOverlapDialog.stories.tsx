@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { EventOverlapDialog } from './EventOverlapDialog';
 import { Event } from '../../types';
-import { EventOverlapDialog } from '../Dialog/EventOverlapDialog';
 
 const meta: Meta<typeof EventOverlapDialog> = {
   title: 'Components/Dialog/EventOverlapDialog',
