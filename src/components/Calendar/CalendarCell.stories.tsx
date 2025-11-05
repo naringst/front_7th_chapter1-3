@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { CalendarCell } from './CalendarCell';
-import { Event } from '../types';
+import { Event } from '../../types';
 
 const meta: Meta<typeof CalendarCell> = {
   title: 'Components/CalendarCell',

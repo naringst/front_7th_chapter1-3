@@ -1,7 +1,7 @@
 import { Notifications, Repeat } from '@mui/icons-material';
 import { Box, Stack, Tooltip, Typography } from '@mui/material';
 
-import { Event } from '../types';
+import { Event } from '../../types';
 
 const getRepeatTypeLabel = (type: string): string => {
   switch (type) {

@@ -21,11 +21,11 @@ import {
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { CalendarView } from './components/CalendarView.tsx';
-import { EventForm as EventFormComponent } from './components/EventForm.tsx';
-import { EventOverlapDialog } from './components/EventOverlapDialog.tsx';
-import { Notification } from './components/Notification.tsx';
-import RecurringEventDialog from './components/RecurringEventDialog.tsx';
+import { Notification } from './components/Alert/Notification.tsx';
+import { CalendarView } from './components/Calendar/CalendarView.tsx';
+import RecurringEventDialog from './components/Dialog/RecurringEventDialog.tsx';
+import { EventForm as EventFormComponent } from './components/EventForm/EventForm.tsx';
+import { EventOverlapDialog } from './components/EventForm/EventOverlapDialog.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';

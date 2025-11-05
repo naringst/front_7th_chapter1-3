@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import { Event } from '../types';
+import { Event } from '../../types';
 
 interface EventOverlapDialogProps {
   open: boolean;

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import { Event } from '../types';
+import { Event } from '../../types';
 import { CalendarCell } from './CalendarCell';
 import {
   formatDate,
@@ -18,7 +18,7 @@ import {
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
-} from '../utils/dateUtils';
+} from '../../utils/dateUtils';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 

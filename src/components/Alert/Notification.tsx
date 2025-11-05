@@ -1,7 +1,7 @@
 import { Close } from '@mui/icons-material';
 import { Alert, AlertTitle, IconButton, Stack } from '@mui/material';
 
-import { NotificationItem } from '../types';
+import { NotificationItem } from '../../types';
 
 interface NotificationProps {
   notifications: NotificationItem[];

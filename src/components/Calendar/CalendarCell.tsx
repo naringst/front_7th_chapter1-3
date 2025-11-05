@@ -1,7 +1,7 @@
 import { TableCell, Typography } from '@mui/material';
 
-import { Event } from '../types';
-import { EventItem } from './EventItem';
+import { Event } from '../../types';
+import { EventItem } from '../EventForm/EventItem';
 
 interface CalendarCellProps {
   /** 셀에 표시할 날짜 (주간 뷰는 Date, 월간 뷰는 number) */

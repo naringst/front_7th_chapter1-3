@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { EventItem } from './EventItem';
-import { Event } from '../types';
+import { Event } from '../../types';
 
 const meta: Meta<typeof EventItem> = {
   title: 'Components/EventItem',
