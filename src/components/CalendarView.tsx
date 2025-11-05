@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 
 import { Event } from '../types';
-import { EventItem } from './EventItem';
+import { CalendarCell } from './CalendarCell';
 import {
   formatDate,
   formatMonth,
@@ -59,34 +59,19 @@ export const CalendarView = ({
             </TableHead>
             <TableBody>
               <TableRow>
-                {weekDates.map((date) => (
-                  <TableCell
-                    key={date.toISOString()}
-                    sx={{
-                      height: '120px',
-                      verticalAlign: 'top',
-                      width: '14.28%',
-                      padding: 1,
-                      border: '1px solid #e0e0e0',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Typography variant="body2" fontWeight="bold">
-                      {date.getDate()}
-                    </Typography>
-                    {events
-                      .filter(
-                        (event) => new Date(event.date).toDateString() === date.toDateString()
-                      )
-                      .map((event) => (
-                        <EventItem
-                          key={event.id}
-                          event={event}
-                          isNotified={notifiedEventIds.includes(event.id)}
-                        />
-                      ))}
-                  </TableCell>
-                ))}
+                {weekDates.map((date) => {
+                  const dayEvents = events.filter(
+                    (event) => new Date(event.date).toDateString() === date.toDateString()
+                  );
+                  return (
+                    <CalendarCell
+                      key={date.toISOString()}
+                      day={date}
+                      events={dayEvents}
+                      notifiedEventIds={notifiedEventIds}
+                    />
+                  );
+                })}
               </TableRow>
             </TableBody>
           </Table>
@@ -118,40 +103,16 @@ export const CalendarView = ({
                   {week.map((day, dayIndex) => {
                     const dateString = day ? formatDate(currentDate, day) : '';
                     const holiday = holidays[dateString];
+                    const dayEvents = day ? getEventsForDay(events, day) : [];
 
                     return (
-                      <TableCell
+                      <CalendarCell
                         key={dayIndex}
-                        sx={{
-                          height: '120px',
-                          verticalAlign: 'top',
-                          width: '14.28%',
-                          padding: 1,
-                          border: '1px solid #e0e0e0',
-                          overflow: 'hidden',
-                          position: 'relative',
-                        }}
-                      >
-                        {day && (
-                          <>
-                            <Typography variant="body2" fontWeight="bold">
-                              {day}
-                            </Typography>
-                            {holiday && (
-                              <Typography variant="body2" color="error">
-                                {holiday}
-                              </Typography>
-                            )}
-                            {getEventsForDay(events, day).map((event) => (
-                              <EventItem
-                                key={event.id}
-                                event={event}
-                                isNotified={notifiedEventIds.includes(event.id)}
-                              />
-                            ))}
-                          </>
-                        )}
-                      </TableCell>
+                        day={day}
+                        events={dayEvents}
+                        notifiedEventIds={notifiedEventIds}
+                        holiday={holiday}
+                      />
                     );
                   })}
                 </TableRow>
