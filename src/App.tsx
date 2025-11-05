@@ -21,7 +21,7 @@ import {
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { Notification } from './components/Alert/Notification.tsx';
+import { NotificationAlert } from './components/Alert/NotificationAlert.tsx';
 import { CalendarView } from './components/Calendar/CalendarView.tsx';
 import RecurringEventDialog from './components/Dialog/RecurringEventDialog.tsx';
 import { EventForm as EventFormComponent } from './components/EventForm/EventForm.tsx';
@@ -394,7 +394,7 @@ function App() {
       />
 
       {notifications.length > 0 && (
-        <Notification
+        <NotificationAlert
           notifications={notifications}
           onDismiss={(id) => setNotifications((prev) => prev.filter((n) => n.id !== id))}
         />

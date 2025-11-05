@@ -8,7 +8,7 @@ interface NotificationProps {
   onDismiss: (_id: string) => void;
 }
 
-export function Notification({ notifications, onDismiss }: NotificationProps) {
+export function NotificationAlert({ notifications, onDismiss }: NotificationProps) {
   return (
     <Stack position="fixed" top={16} right={16} spacing={2} alignItems="flex-end">
       {notifications.map((notification) => (
