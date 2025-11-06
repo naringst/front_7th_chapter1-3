@@ -41,32 +41,6 @@ async function createEvent(
   });
 }
 
-// 겹치는 일정 생성 (명시적으로 겹치는 시간대)
-async function createOverlappingEvent(request: APIRequestContext) {
-  await createEvent(request, {
-    title: '기존 일정',
-    date: '2025-11-06',
-    startTime: '01:35',
-    endTime: '01:45',
-    description: '겹치는 기존 일정',
-    location: '서울',
-    category: '개인',
-  });
-}
-
-// 겹치지 않는 일정 생성 (명시적으로 겹치지 않는 시간대)
-async function createNonOverlappingEvent(request: APIRequestContext) {
-  await createEvent(request, {
-    title: '기존 일정 (겹치지 않음)',
-    date: '2025-11-06',
-    startTime: '02:00',
-    endTime: '02:30',
-    description: '겹치지 않는 기존 일정',
-    location: '서울',
-    category: '개인',
-  });
-}
-
 test.describe('일반 이벤트 생성', () => {
   test.beforeEach(async ({ page, request }) => {
     // 각 테스트 전에 데이터 초기화
@@ -78,8 +52,16 @@ test.describe('일반 이벤트 생성', () => {
   });
 
   test('일반 이벤트 생성: 겹치지 않는 일정은 정상적으로 생성된다', async ({ page, request }) => {
-    // 기존에 겹치지 않는 일정이 있는 경우도 테스트
-    await createNonOverlappingEvent(request);
+    // 기존에 겹치지 않는 일정이 있는 경우도 테스트 (고유한 날짜 사용: 2025-11-06)
+    await createEvent(request, {
+      title: '기존 일정 (겹치지 않음)',
+      date: '2025-11-06',
+      startTime: '02:00',
+      endTime: '02:30',
+      description: '겹치지 않는 기존 일정',
+      location: '서울',
+      category: '개인',
+    });
     await page.reload();
 
     // 새 일정 생성
@@ -96,7 +78,6 @@ test.describe('일반 이벤트 생성', () => {
 
     await page.getByRole('button', { name: '일정 추가' }).click();
 
-    // 일정이 추가되었습니다
     const toast = page.getByRole('alert');
     await expect(toast).toHaveText('일정이 추가되었습니다');
 
@@ -120,13 +101,21 @@ test.describe('일반 이벤트 생성', () => {
     page,
     request,
   }) => {
-    // 명시적으로 겹치는 기존 일정 생성 (01:35-01:45)
-    await createOverlappingEvent(request);
+    // 명시적으로 겹치는 기존 일정 생성 (01:35-01:45) - 고유한 날짜 사용: 2025-11-07
+    await createEvent(request, {
+      title: '기존 일정',
+      date: '2025-11-07',
+      startTime: '01:30',
+      endTime: '01:45',
+      description: '겹치는 기존 일정',
+      location: '서울',
+      category: '개인',
+    });
     await page.reload();
 
     // 겹치는 새 일정 생성 시도 (01:30-01:40)
     await page.getByLabel('제목').fill('새로운 겹치는 일정');
-    await page.getByLabel('날짜').fill('2025-11-06');
+    await page.getByLabel('날짜').fill('2025-11-07');
     await page.getByLabel('시작 시간').fill('01:30');
     await page.getByLabel('종료 시간').fill('01:40');
     await page.getByLabel('설명').fill('겹치는 일정 테스트');
@@ -138,8 +127,8 @@ test.describe('일반 이벤트 생성', () => {
 
     await page.getByRole('button', { name: '일정 추가' }).click();
 
-    // 겹침 경고 Dialog 확인
-    const dialog = page.getByRole('dialog');
+    // 겹침 경고 Dialog 확인 - "일정 겹침 경고" 텍스트를 포함하는 dialog만 찾기
+    const dialog = page.getByRole('dialog').filter({ hasText: '일정 겹침 경고' });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText('일정 겹침 경고')).toBeVisible();
     await expect(dialog.getByText(/기존 일정/)).toBeVisible();
@@ -159,13 +148,21 @@ test.describe('일반 이벤트 생성', () => {
     page,
     request,
   }) => {
-    // 명시적으로 겹치는 기존 일정 생성 (01:35-01:45)
-    await createOverlappingEvent(request);
+    // 명시적으로 겹치는 기존 일정 생성 (01:35-01:45) - 고유한 날짜 사용: 2025-11-08
+    await createEvent(request, {
+      title: '기존 일정',
+      date: '2025-11-08',
+      startTime: '01:35',
+      endTime: '01:45',
+      description: '겹치는 기존 일정',
+      location: '서울',
+      category: '개인',
+    });
     await page.reload();
 
     // 겹치는 새 일정 생성 시도 (01:30-01:40)
     await page.getByLabel('제목').fill('취소될 일정');
-    await page.getByLabel('날짜').fill('2025-11-06');
+    await page.getByLabel('날짜').fill('2025-11-08');
     await page.getByLabel('시작 시간').fill('01:30');
     await page.getByLabel('종료 시간').fill('01:40');
     await page.getByLabel('설명').fill('취소 테스트');
@@ -177,8 +174,8 @@ test.describe('일반 이벤트 생성', () => {
 
     await page.getByRole('button', { name: '일정 추가' }).click();
 
-    // 겹침 경고 Dialog 확인
-    const dialog = page.getByRole('dialog');
+    // 겹침 경고 Dialog 확인 - "일정 겹침 경고" 텍스트를 포함하는 dialog만 찾기
+    const dialog = page.getByRole('dialog').filter({ hasText: '일정 겹침 경고' });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText('일정 겹침 경고')).toBeVisible();
 
