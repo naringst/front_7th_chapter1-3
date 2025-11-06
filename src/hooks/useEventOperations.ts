@@ -40,7 +40,10 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-      if (editing) {
+      // id가 있으면 업데이트, 없으면 생성
+      const isUpdate = editing || !!(eventData as Event).id;
+
+      if (isUpdate) {
         const editingEvent = {
           ...eventData,
           // ! TEST CASE
@@ -70,7 +73,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
       await fetchEvents();
       onSave?.();
-      enqueueSnackbar(editing ? SUCCESS_MESSAGES.EVENT_UPDATED : SUCCESS_MESSAGES.EVENT_ADDED, {
+      enqueueSnackbar(isUpdate ? SUCCESS_MESSAGES.EVENT_UPDATED : SUCCESS_MESSAGES.EVENT_ADDED, {
         variant: 'success',
       });
     } catch (error) {
@@ -117,6 +120,38 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
+  /**
+   * 드래그 앤 드롭으로 이벤트를 이동합니다 (낙관적 업데이트 포함)
+   * 즉시 UI를 업데이트하고, saveEvent를 호출하여 서버에 저장합니다.
+   * 서버 업데이트가 실패하면 롤백합니다.
+   */
+  const moveEvent = async (eventId: string, newDate: string) => {
+    const eventToMove = events.find((e) => e.id === eventId);
+    if (!eventToMove) {
+      console.error('Event not found:', eventId);
+      return;
+    }
+
+    const previousDate = eventToMove.date;
+    const updatedEvent: Event = { ...eventToMove, date: newDate };
+
+    // 낙관적 업데이트: 로컬 상태 즉시 업데이트
+    setEvents((prevEvents) =>
+      prevEvents.map((event) => (event.id === eventId ? updatedEvent : event))
+    );
+
+    try {
+      // saveEvent를 사용하여 서버에 업데이트
+      // saveEvent는 내부적으로 fetchEvents를 호출하므로 최신 데이터로 갱신됨
+      await saveEvent(updatedEvent);
+    } catch {
+      // 실패 시 롤백: 이전 상태로 복원
+      setEvents((prevEvents) =>
+        prevEvents.map((event) => (event.id === eventId ? { ...event, date: previousDate } : event))
+      );
+    }
+  };
+
   async function init() {
     await fetchEvents();
     enqueueSnackbar(SUCCESS_MESSAGES.EVENTS_LOADED, { variant: 'info' });
@@ -127,5 +162,5 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { events, fetchEvents, saveEvent, deleteEvent, createRepeatEvent };
+  return { events, fetchEvents, saveEvent, deleteEvent, createRepeatEvent, moveEvent };
 };
