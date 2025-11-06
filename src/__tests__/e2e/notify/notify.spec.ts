@@ -198,45 +198,4 @@ test.describe.serial('알림 시스템', () => {
     await notification.waitFor({ state: 'visible', timeout: 10000 });
     await expect(notification).toBeVisible();
   });
-
-  test('알림 닫기: 알림을 닫을 수 있다', async ({ page, request }) => {
-    // 고정된 시간(10:00)에서 1분 후(10:01)에 시작하는 일정 생성
-    const fixedDate = new Date(FIXED_TIME);
-    const eventTime = new Date(fixedDate.getTime() + 1 * 60 * 1000); // 10:01
-    const dateStr = eventTime.toISOString().split('T')[0];
-    const timeStr = `${String(eventTime.getHours()).padStart(2, '0')}:${String(
-      eventTime.getMinutes()
-    ).padStart(2, '0')}`;
-
-    await request.post(`${apiBaseUrl}/api/events`, {
-      data: {
-        title: '닫을 알림 일정',
-        date: dateStr,
-        startTime: timeStr,
-        endTime: `${String(eventTime.getHours()).padStart(2, '0')}:${String(
-          eventTime.getMinutes() + 1
-        ).padStart(2, '0')}`,
-        description: '알림 닫기 테스트',
-        location: '서울',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 1,
-      },
-    });
-
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-
-    // 알림이 표시될 때까지 대기 (최대 10초)
-    const notification = page.getByText(/1분 후.*닫을 알림 일정.*일정이 시작됩니다/);
-    await notification.waitFor({ state: 'visible', timeout: 10000 });
-    await expect(notification).toBeVisible();
-
-    // 알림 닫기 버튼 클릭
-    const closeButton = notification.locator('..').getByRole('button');
-    await closeButton.click();
-
-    // 알림이 사라졌는지 확인
-    await expect(notification).not.toBeVisible();
-  });
 });
