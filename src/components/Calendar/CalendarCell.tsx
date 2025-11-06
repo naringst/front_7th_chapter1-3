@@ -12,6 +12,8 @@ interface CalendarCellProps {
   events: Event[];
   notifiedEventIds?: string[];
   holiday?: string;
+  /** 셀 클릭 핸들러 (날짜를 폼에 채우기 위해) */
+  onCellClick?: (dateId: string) => void; // eslint-disable-line no-unused-vars
 }
 
 /**
@@ -24,6 +26,7 @@ export const CalendarCell = ({
   events,
   notifiedEventIds = [],
   holiday,
+  onCellClick,
 }: CalendarCellProps) => {
   const isWeekView = day instanceof Date;
   const isMonthView = typeof day === 'number';
@@ -32,9 +35,16 @@ export const CalendarCell = ({
     id: dateId,
   });
 
+  const handleCellClick = () => {
+    if (day && dateId && onCellClick) {
+      onCellClick(dateId);
+    }
+  };
+
   return (
     <TableCell
       ref={setNodeRef}
+      onClick={handleCellClick}
       sx={{
         height: '120px',
         verticalAlign: 'top',
@@ -45,6 +55,10 @@ export const CalendarCell = ({
         position: isMonthView ? 'relative' : 'static',
         backgroundColor: isOver ? 'rgba(0, 128, 0, 0.3)' : 'transparent',
         transition: 'background-color 0.2s',
+        cursor: day && dateId ? 'pointer' : 'default',
+        '&:hover': {
+          backgroundColor: day && dateId ? 'rgba(0, 0, 0, 0.05)' : undefined,
+        },
       }}
     >
       {day && (

@@ -32,6 +32,7 @@ interface CalendarViewProps {
   notifiedEventIds?: string[];
   holidays?: { [key: string]: string };
   onEventMove?: (eventId: string, newDate: string) => void; // eslint-disable-line no-unused-vars
+  onCellClick?: (dateId: string) => void; // eslint-disable-line no-unused-vars
 }
 
 /**
@@ -45,6 +46,7 @@ export const CalendarView = ({
   notifiedEventIds = [],
   holidays = {},
   onEventMove,
+  onCellClick,
 }: CalendarViewProps) => {
   const { activeEvent, handleDragStart, handleDragEnd } = useEventDrag({
     events,
@@ -79,6 +81,7 @@ export const CalendarView = ({
                       dateId={dateId}
                       events={dayEvents}
                       notifiedEventIds={notifiedEventIds}
+                      onCellClick={onCellClick}
                     />
                   );
                 })}
@@ -123,6 +126,7 @@ export const CalendarView = ({
                         events={dayEvents}
                         notifiedEventIds={notifiedEventIds}
                         holiday={holiday}
+                        onCellClick={onCellClick}
                       />
                     );
                   })}

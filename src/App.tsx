@@ -63,6 +63,7 @@ function App() {
   const {
     title,
     date,
+    setDate,
     startTime,
     endTime,
     description,
@@ -286,6 +287,7 @@ function App() {
             holidays={holidays}
             notifiedEventIds={notifiedEvents}
             onEventMove={moveEvent}
+            onCellClick={setDate}
           />
         </Stack>
 
