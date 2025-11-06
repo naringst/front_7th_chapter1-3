@@ -56,9 +56,6 @@ export const CalendarCell = ({
         backgroundColor: isOver ? 'rgba(0, 128, 0, 0.3)' : 'transparent',
         transition: 'background-color 0.2s',
         cursor: day && dateId ? 'pointer' : 'default',
-        '&:hover': {
-          backgroundColor: day && dateId ? 'rgba(0, 0, 0, 0.05)' : undefined,
-        },
       }}
     >
       {day && (
