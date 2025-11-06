@@ -17,12 +17,21 @@ interface EventItemProps {
  * UI는 EventItemView 컴포넌트를 사용합니다.
  */
 export const EventItem = ({ event, isNotified = false }: EventItemProps) => {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: event.id,
   });
 
   return (
-    <Box ref={setNodeRef} {...listeners} {...attributes} {...transform} sx={{ cursor: 'grab' }}>
+    <Box
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      {...transform}
+      sx={{
+        cursor: 'grab',
+        opacity: isDragging ? 0 : 1,
+      }}
+    >
       <EventItemView event={event} isNotified={isNotified} />
     </Box>
   );
