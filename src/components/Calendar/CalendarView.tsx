@@ -1,12 +1,5 @@
+import { DndContext, pointerWithin } from '@dnd-kit/core';
 import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  pointerWithin,
-} from '@dnd-kit/core';
-import {
-  Box,
   Stack,
   Table,
   TableBody,
@@ -16,9 +9,10 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
 
 import { CalendarCell } from './CalendarCell';
+import { EventDragOverlay } from './EventDragOverlay';
+import { useEventDrag } from '../../hooks/useEventDrag';
 import { Event } from '../../types';
 import {
   formatDate,
@@ -28,7 +22,6 @@ import {
   getWeekDates,
   getWeeksAtMonth,
 } from '../../utils/dateUtils';
-import { EventItemView } from '../EventForm/EventItemView';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -53,41 +46,10 @@ export const CalendarView = ({
   holidays = {},
   onEventMove,
 }: CalendarViewProps) => {
-  const [activeId, setActiveId] = useState<string | null>(null);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const activeEvent = activeId ? events.find((event) => event.id === activeId) : null;
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || !onEventMove) {
-      setActiveId(null);
-      return;
-    }
-
-    const eventId = active.id as string;
-    const targetDateId = over.id as string;
-
-    // 현재 이벤트의 날짜 확인
-    const currentEvent = events.find((e) => e.id === eventId);
-    if (!currentEvent) {
-      setActiveId(null);
-      return;
-    }
-
-    // 같은 위치로 드롭한 경우 무시
-    if (currentEvent.date === targetDateId) {
-      setActiveId(null);
-      return;
-    }
-
-    onEventMove(eventId, targetDateId);
-    setActiveId(null);
-  };
+  const { activeEvent, handleDragStart, handleDragEnd } = useEventDrag({
+    events,
+    onEventMove,
+  });
 
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
@@ -182,25 +144,7 @@ export const CalendarView = ({
       {view === 'week' && renderWeekView()}
       {view === 'month' && renderMonthView()}
 
-      <DragOverlay style={{ cursor: 'grabbing' }} zIndex={1000}>
-        {activeEvent && (
-          <Box
-            sx={{
-              pointerEvents: 'none',
-              cursor: 'grabbing',
-              boxShadow: 3,
-              opacity: 0.95,
-              minWidth: '120px',
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <EventItemView
-              event={activeEvent}
-              isNotified={notifiedEventIds.includes(activeEvent.id)}
-            />
-          </Box>
-        )}
-      </DragOverlay>
+      <EventDragOverlay activeEvent={activeEvent ?? null} notifiedEventIds={notifiedEventIds} />
     </DndContext>
   );
 };
