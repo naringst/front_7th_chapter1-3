@@ -133,7 +133,13 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
 
     const previousDate = eventToMove.date;
-    const updatedEvent: Event = { ...eventToMove, date: newDate };
+    // 반복 일정인 경우 반복 속성을 제거하고 일반 일정으로 변경
+    const isRepeating = eventToMove.repeat.type !== 'none' && eventToMove.repeat.interval > 0;
+    const updatedEvent: Event = {
+      ...eventToMove,
+      date: newDate,
+      repeat: isRepeating ? { type: 'none', interval: 0 } : eventToMove.repeat,
+    };
 
     // 낙관적 업데이트: 로컬 상태 즉시 업데이트
     setEvents((prevEvents) =>
