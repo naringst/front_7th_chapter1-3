@@ -1,44 +1,8 @@
-import { Notifications, Repeat } from '@mui/icons-material';
-import { Box, Stack, Tooltip, Typography } from '@mui/material';
+import { useDraggable } from '@dnd-kit/core';
+import { Box } from '@mui/material';
 
+import { EventItemView } from './EventItemView';
 import { Event } from '../../types';
-
-const getRepeatTypeLabel = (type: string): string => {
-  switch (type) {
-    case 'daily':
-      return '일';
-    case 'weekly':
-      return '주';
-    case 'monthly':
-      return '월';
-    case 'yearly':
-      return '년';
-    default:
-      return '';
-  }
-};
-
-// 스타일 상수
-const eventBoxStyles = {
-  notified: {
-    backgroundColor: '#ffebee',
-    fontWeight: 'bold',
-    color: '#d32f2f',
-  },
-  normal: {
-    backgroundColor: '#f5f5f5',
-    fontWeight: 'normal',
-    color: 'inherit',
-  },
-  common: {
-    p: 0.5,
-    my: 0.5,
-    borderRadius: 1,
-    minHeight: '18px',
-    width: '100%',
-    overflow: 'hidden',
-  },
-};
 
 interface EventItemProps {
   /** 표시할 이벤트 */
@@ -49,33 +13,17 @@ interface EventItemProps {
 
 /**
  * 일정 아이템 컴포넌트
- * 일정의 상태별 시각적 표현을 담당합니다.
+ * 드래그 앤 드롭 기능을 제공하는 일정 아이템입니다.
+ * UI는 EventItemView 컴포넌트를 사용합니다.
  */
 export const EventItem = ({ event, isNotified = false }: EventItemProps) => {
-  const isRepeating = event.repeat.type !== 'none';
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: event.id,
+  });
 
   return (
-    <Box
-      sx={{
-        ...eventBoxStyles.common,
-        ...(isNotified ? eventBoxStyles.notified : eventBoxStyles.normal),
-      }}
-    >
-      <Stack direction="row" spacing={1} alignItems="center">
-        {isNotified && <Notifications fontSize="small" />}
-        {isRepeating && (
-          <Tooltip
-            title={`${event.repeat.interval}${getRepeatTypeLabel(event.repeat.type)}마다 반복${
-              event.repeat.endDate ? ` (종료: ${event.repeat.endDate})` : ''
-            }`}
-          >
-            <Repeat fontSize="small" />
-          </Tooltip>
-        )}
-        <Typography variant="caption" noWrap sx={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
-          {event.title}
-        </Typography>
-      </Stack>
+    <Box ref={setNodeRef} {...listeners} {...attributes} {...transform} sx={{ cursor: 'grab' }}>
+      <EventItemView event={event} isNotified={isNotified} />
     </Box>
   );
 };
