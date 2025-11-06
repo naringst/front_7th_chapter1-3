@@ -46,6 +46,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm create playwright
       - name: Run unit/integration tests
         run: pnpm run test
