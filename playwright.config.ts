@@ -73,7 +73,8 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: 'TEST_ENV=e2e node server.js',
+      command: 'pnpm run server',
+      env: { TEST_ENV: 'e2e' },
       url: 'http://localhost:3000/api/events',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
