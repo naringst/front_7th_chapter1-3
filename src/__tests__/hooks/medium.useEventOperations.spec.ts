@@ -8,7 +8,7 @@ import {
 } from '../../__mocks__/handlersUtils.ts';
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { server } from '../../setupTests.ts';
-import { Event } from '../../types.ts';
+import { Event, EventForm } from '../../types.ts';
 
 const enqueueSnackbarFn = vi.fn();
 
@@ -44,14 +44,14 @@ it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다',
 });
 
 it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', async () => {
-  setupMockHandlerCreation(); // ? Med: 이걸 왜 써야하는지 물어보자
+  setupMockHandlerCreation(); // POST 요청에 대한 mock handler 설정
 
   const { result } = renderHook(() => useEventOperations(false));
 
   await act(() => Promise.resolve(null));
 
-  const newEvent: Event = {
-    id: '1',
+  // 새 이벤트 생성이므로 id를 제거 (서버에서 id를 생성함)
+  const newEvent: EventForm = {
     title: '새 회의',
     date: '2025-10-16',
     startTime: '11:00',
@@ -67,6 +67,7 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', a
     await result.current.saveEvent(newEvent);
   });
 
+  // 서버에서 생성된 id를 포함한 이벤트 확인
   expect(result.current.events).toEqual([{ ...newEvent, id: '1' }]);
 });
 
