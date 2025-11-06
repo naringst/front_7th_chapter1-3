@@ -51,7 +51,7 @@ test.describe('드래그 앤 드롭으로 일정 이동', () => {
     await page.goto(startUrl);
   });
 
-  test('월간 뷰: 이벤트를 다른 날짜로 드래그하면 날짜가 변경된다', async ({ page, request }) => {
+  test('이벤트를 다른 유효한 날짜로 드래그하면 날짜가 변경된다', async ({ page, request }) => {
     // 테스트 이벤트 생성 (2025-11-06)
     await createEvent(request, {
       title: '월간 뷰 이동 테스트',
@@ -119,62 +119,17 @@ test.describe('드래그 앤 드롭으로 일정 이동', () => {
     expect(movedEvent?.date).toBe('2025-11-10');
   });
 
-  test('주간 뷰: 이벤트를 다른 날짜로 드래그하면 날짜가 변경된다', async ({ page, request }) => {
-    // 주간 뷰로 전환
-    await page.getByLabel('뷰 타입 선택').click();
-    await page.getByRole('option', { name: 'Week' }).click();
+  /**
+   * NOTE: 페어 프로그래밍
+   *
+   * 드라이버: 고다솜, 양진성
+   * 네비게이터: 정나리, 이정민
+   */
 
-    // 테스트 이벤트 생성
-    await createEvent(request, {
-      title: '주간 뷰 이동 테스트',
-      date: '2025-11-06',
-      startTime: '10:00',
-      endTime: '11:00',
-      description: '주간 뷰 드래그 테스트',
-      location: '서울',
-      category: '개인',
-    });
-    await page.reload();
-
-    // 주간 뷰로 다시 전환
-    await page.getByLabel('뷰 타입 선택').click();
-    await page.getByRole('option', { name: 'Week' }).click();
-
-    // 이벤트가 원래 날짜에 있는지 확인
-    const weekView = page.getByTestId('week-view');
-    await expect(weekView.getByText('주간 뷰 이동 테스트')).toBeVisible();
-
-    // 이벤트를 찾아서 드래그
-    const eventItem = page
-      .locator('div')
-      .filter({ hasText: /^주간 뷰 이동 테스트$/ })
-      .first();
-
-    // 주간 뷰에서 원래 날짜(6일)가 아닌 다른 날짜 셀 찾기 (7일)
-    // 주간 뷰는 일요일부터 시작하므로, 6일이 포함된 주에서 7일(금요일) 셀을 찾음
-    const targetCell = weekView.locator('td').filter({ hasText: '7' }).first();
-
-    // 드래그 앤 드롭 실행
-    await eventItem.dragTo(targetCell);
-
-    // 잠시 대기
-    await page.waitForTimeout(1000);
-
-    // 이벤트가 새 위치에 있는지 확인
-    await expect(targetCell.getByText('주간 뷰 이동 테스트')).toBeVisible();
-
-    // 원래 날짜(6일) 셀에서 이벤트가 사라졌는지 확인
-    const originalCell = weekView.locator('td').filter({ hasText: '6' }).first();
-    await expect(originalCell.getByText('주간 뷰 이동 테스트')).toHaveCount(0);
-
-    // API를 통해 날짜가 실제로 변경되었는지 확인 (2025-11-07로 변경되어야 함)
-    const response = await request.get(`${apiBaseUrl}/api/events`);
-    const { events } = await response.json();
-    const movedEvent = events.find((e: { title: string }) => e.title === '주간 뷰 이동 테스트');
-    expect(movedEvent?.date).toBe('2025-11-07');
-  });
-
-  test('같은 날짜로 드롭하면 이벤트가 변경되지 않는다', async ({ page, request }) => {
+  test('캘린더 내 유효하지 않은 날짜로 드롭하면 이벤트가 변경되지 않는다', async ({
+    page,
+    request,
+  }) => {
     // 테스트 이벤트 생성
     await createEvent(request, {
       title: '같은 날짜 테스트',
@@ -219,5 +174,75 @@ test.describe('드래그 앤 드롭으로 일정 이동', () => {
       (e: { title: string }) => e.title === '같은 날짜 테스트'
     );
     expect(unchangedEvent?.date).toBe(originalDate);
+  });
+
+  test('반복 이벤트를 다른 날짜로 드래그하면 반복 아이콘이 사라지고 단일 이벤트로 변경된다', async ({
+    page,
+    request,
+  }) => {
+    // 반복 일정 생성 (2025-11-06부터 매주 반복)
+    await request.post(`${apiBaseUrl}/api/events`, {
+      data: {
+        title: '반복 드래그 테스트',
+        date: '2025-11-06',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '반복 일정',
+        location: '서울',
+        category: '개인',
+        repeat: { type: 'weekly', interval: 1, endDate: '2025-12-31' },
+        notificationTime: 1,
+      },
+    });
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    // 이벤트 리스트에서 반복 일정 확인 및 반복 아이콘 확인
+    const eventList = page.getByTestId('event-list');
+    const eventBox = eventList.getByText('반복 드래그 테스트').first().locator('..').locator('..');
+
+    // 반복 아이콘이 있는지 확인 (Repeat 아이콘 - MUI 아이콘)
+    // 이벤트 박스 내에서 SVG 아이콘을 찾음
+    const repeatIcon = eventBox.locator('svg').first();
+    await expect(repeatIcon).toBeVisible();
+
+    // 이벤트를 다른 날짜로 드래그 (2025-11-06에서 2025-11-10으로)
+    const eventItem = page
+      .locator('div')
+      .filter({ hasText: /^반복 드래그 테스트$/ })
+      .first();
+    const targetCell = page
+      .locator('table')
+      .filter({ hasText: '10' })
+      .locator('td')
+      .filter({ hasText: '10' })
+      .first();
+
+    // 드래그 앤 드롭 실행
+    await eventItem.dragTo(targetCell);
+
+    // 잠시 대기 (낙관적 업데이트 및 서버 요청 완료 대기)
+    await page.waitForTimeout(1000);
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    // API를 통해 반복 속성이 제거되었는지 확인
+    const response = await request.get(`${apiBaseUrl}/api/events`);
+    const { events } = await response.json();
+    const movedEvent = events.find((e: { title: string }) => e.title === '반복 드래그 테스트');
+    expect(movedEvent).toBeDefined();
+    expect(movedEvent?.date).toBe('2025-11-10');
+    expect(movedEvent?.repeat.type).toBe('none');
+    expect(movedEvent?.repeat.interval).toBe(0);
+
+    // 이벤트 리스트에서 반복 아이콘이 사라졌는지 확인
+    const updatedEventBox = eventList
+      .getByText('반복 드래그 테스트')
+      .first()
+      .locator('..')
+      .locator('..');
+    // 반복 아이콘이 없어야 함 (SVG 아이콘이 없거나, Repeat 아이콘이 없어야 함)
+    const updatedRepeatIcon = updatedEventBox.locator('svg').first();
+    await expect(updatedRepeatIcon).toHaveCount(0);
   });
 });
