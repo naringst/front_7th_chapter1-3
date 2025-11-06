@@ -1,3 +1,4 @@
+import { DndContext, pointerWithin } from '@dnd-kit/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { CalendarCell } from './CalendarCell';
@@ -178,5 +179,112 @@ export const MonthCellWithHoliday: Story = {
     events: [normalEvent],
     notifiedEventIds: [],
     holiday: '한글날',
+    dateId: '2025-10-09',
+  },
+};
+
+/**
+ * 주간 뷰 셀 - 호버 상태 (커서 변경)
+ * 셀에 마우스를 올리면 커서가 pointer로 변경됩니다.
+ * 실제로 마우스를 올려서 확인하세요.
+ */
+export const WeekCellHoverState: Story = {
+  name: '주간 뷰 셀 - 호버 상태 (커서 변경)',
+  args: {
+    day: new Date(2025, 9, 6),
+    events: [normalEvent],
+    notifiedEventIds: [],
+    dateId: '2025-10-06',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '셀에 마우스를 올리면 커서가 `pointer`로 변경됩니다. 실제로 마우스를 올려서 확인하세요.',
+      },
+    },
+  },
+};
+
+/**
+ * 월간 뷰 셀 - 호버 상태 (커서 변경)
+ * 셀에 마우스를 올리면 커서가 pointer로 변경됩니다.
+ * 실제로 마우스를 올려서 확인하세요.
+ */
+export const MonthCellHoverState: Story = {
+  name: '월간 뷰 셀 - 호버 상태 (커서 변경)',
+  args: {
+    day: 6,
+    events: [normalEvent],
+    notifiedEventIds: [],
+    dateId: '2025-10-06',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '셀에 마우스를 올리면 커서가 `pointer`로 변경됩니다. 실제로 마우스를 올려서 확인하세요.',
+      },
+    },
+  },
+};
+
+/**
+ * 주간 뷰 셀 - 드래그 오버 상태 (배경색 변경)
+ * 이벤트를 드래그하여 셀 위로 올리면 배경색이 초록색으로 변경됩니다.
+ * 실제로 이벤트를 드래그하여 확인하세요.
+ */
+export const WeekCellDragOverState: Story = {
+  name: '주간 뷰 셀 - 드래그 오버 상태 (배경색 변경)',
+  args: {
+    day: new Date(2025, 9, 6),
+    events: [normalEvent],
+    notifiedEventIds: [],
+    dateId: '2025-10-06',
+  },
+  decorators: [
+    (Story) => (
+      <DndContext collisionDetection={pointerWithin} onDragStart={() => {}} onDragEnd={() => {}}>
+        <Story />
+      </DndContext>
+    ),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '이벤트를 드래그하여 셀 위로 올리면 배경색이 `rgba(0, 128, 0, 0.3)`로 변경됩니다. 실제로 이벤트를 드래그하여 확인하세요.',
+      },
+    },
+  },
+};
+
+/**
+ * 월간 뷰 셀 - 드래그 오버 상태 (배경색 변경)
+ * 이벤트를 드래그하여 셀 위로 올리면 배경색이 초록색으로 변경됩니다.
+ * 실제로 이벤트를 드래그하여 확인하세요.
+ */
+export const MonthCellDragOverState: Story = {
+  name: '월간 뷰 셀 - 드래그 오버 상태 (배경색 변경)',
+  args: {
+    day: 6,
+    events: [normalEvent],
+    notifiedEventIds: [],
+    dateId: '2025-10-06',
+  },
+  decorators: [
+    (Story) => (
+      <DndContext collisionDetection={pointerWithin} onDragStart={() => {}} onDragEnd={() => {}}>
+        <Story />
+      </DndContext>
+    ),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '이벤트를 드래그하여 셀 위로 올리면 배경색이 `rgba(0, 128, 0, 0.3)`로 변경됩니다. 실제로 이벤트를 드래그하여 확인하세요.',
+      },
+    },
   },
 };
