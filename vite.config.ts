@@ -47,6 +47,21 @@ export default mergeConfig(
             setupFiles: ['.storybook/vitest.setup.ts'],
           },
         },
+        {
+          test: {
+            name: 'unit',
+            globals: true,
+            environment: 'jsdom',
+            setupFiles: './src/setupTests.ts',
+            include: ['src/**/*.spec.ts', 'src/**/*.spec.tsx'],
+            exclude: [
+              '**/node_modules/**',
+              '**/dist/**',
+              '**/src/__tests__/e2e/**',
+              '**/*.stories.*',
+            ],
+          },
+        },
       ],
     },
   }),

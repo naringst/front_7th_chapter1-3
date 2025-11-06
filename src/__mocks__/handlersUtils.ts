@@ -9,7 +9,8 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
 
   server.use(
     http.get('/api/events', () => {
-      return HttpResponse.json({ events: mockEvents });
+      // 최신 mockEvents 상태를 반환하도록 클로저 사용
+      return HttpResponse.json({ events: [...mockEvents] });
     }),
     http.post('/api/events', async ({ request }) => {
       const newEvent = (await request.json()) as Event;
