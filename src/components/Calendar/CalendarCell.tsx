@@ -1,3 +1,4 @@
+import { useDroppable } from '@dnd-kit/core';
 import { TableCell, Typography } from '@mui/material';
 
 import { Event } from '../../types';
@@ -6,6 +7,8 @@ import { EventItem } from '../EventForm/EventItem';
 interface CalendarCellProps {
   /** 셀에 표시할 날짜 (주간 뷰는 Date, 월간 뷰는 number) */
   day: Date | number | null;
+  /** 드롭 영역 식별자 (YYYY-MM-DD 형식) */
+  dateId: string;
   events: Event[];
   notifiedEventIds?: string[];
   holiday?: string;
@@ -17,6 +20,7 @@ interface CalendarCellProps {
  */
 export const CalendarCell = ({
   day,
+  dateId,
   events,
   notifiedEventIds = [],
   holiday,
@@ -24,8 +28,13 @@ export const CalendarCell = ({
   const isWeekView = day instanceof Date;
   const isMonthView = typeof day === 'number';
 
+  const { isOver, setNodeRef } = useDroppable({
+    id: dateId,
+  });
+
   return (
     <TableCell
+      ref={setNodeRef}
       sx={{
         height: '120px',
         verticalAlign: 'top',
@@ -34,6 +43,8 @@ export const CalendarCell = ({
         border: '1px solid #e0e0e0',
         overflow: 'hidden',
         position: isMonthView ? 'relative' : 'static',
+        backgroundColor: isOver ? 'rgba(0, 128, 0, 0.3)' : 'transparent',
+        transition: 'background-color 0.2s',
       }}
     >
       {day && (

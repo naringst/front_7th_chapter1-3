@@ -1,4 +1,12 @@
 import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  pointerWithin,
+} from '@dnd-kit/core';
+import {
+  Box,
   Stack,
   Table,
   TableBody,
@@ -8,9 +16,10 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 
-import { Event } from '../../types';
 import { CalendarCell } from './CalendarCell';
+import { Event } from '../../types';
 import {
   formatDate,
   formatMonth,
@@ -19,6 +28,7 @@ import {
   getWeekDates,
   getWeeksAtMonth,
 } from '../../utils/dateUtils';
+import { EventItemView } from '../EventForm/EventItemView';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -28,6 +38,7 @@ interface CalendarViewProps {
   events: Event[];
   notifiedEventIds?: string[];
   holidays?: { [key: string]: string };
+  onEventMove?: (eventId: string, newDate: string) => void; // eslint-disable-line no-unused-vars
 }
 
 /**
@@ -40,7 +51,44 @@ export const CalendarView = ({
   events,
   notifiedEventIds = [],
   holidays = {},
+  onEventMove,
 }: CalendarViewProps) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const activeEvent = activeId ? events.find((event) => event.id === activeId) : null;
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || !onEventMove) {
+      setActiveId(null);
+      return;
+    }
+
+    const eventId = active.id as string;
+    const targetDateId = over.id as string;
+
+    // 현재 이벤트의 날짜 확인
+    const currentEvent = events.find((e) => e.id === eventId);
+    if (!currentEvent) {
+      setActiveId(null);
+      return;
+    }
+
+    // 같은 위치로 드롭한 경우 무시
+    if (currentEvent.date === targetDateId) {
+      setActiveId(null);
+      return;
+    }
+
+    onEventMove(eventId, targetDateId);
+    setActiveId(null);
+  };
+
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
     return (
@@ -60,13 +108,13 @@ export const CalendarView = ({
             <TableBody>
               <TableRow>
                 {weekDates.map((date) => {
-                  const dayEvents = events.filter(
-                    (event) => new Date(event.date).toDateString() === date.toDateString()
-                  );
+                  const dateId = formatDate(date);
+                  const dayEvents = events.filter((event) => event.date === dateId);
                   return (
                     <CalendarCell
                       key={date.toISOString()}
                       day={date}
+                      dateId={dateId}
                       events={dayEvents}
                       notifiedEventIds={notifiedEventIds}
                     />
@@ -109,6 +157,7 @@ export const CalendarView = ({
                       <CalendarCell
                         key={dayIndex}
                         day={day}
+                        dateId={dateString}
                         events={dayEvents}
                         notifiedEventIds={notifiedEventIds}
                         holiday={holiday}
@@ -125,9 +174,33 @@ export const CalendarView = ({
   };
 
   return (
-    <>
+    <DndContext
+      collisionDetection={pointerWithin}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       {view === 'week' && renderWeekView()}
       {view === 'month' && renderMonthView()}
-    </>
+
+      <DragOverlay style={{ cursor: 'grabbing' }} zIndex={1000}>
+        {activeEvent && (
+          <Box
+            sx={{
+              pointerEvents: 'none',
+              cursor: 'grabbing',
+              boxShadow: 3,
+              opacity: 0.95,
+              minWidth: '120px',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <EventItemView
+              event={activeEvent}
+              isNotified={notifiedEventIds.includes(activeEvent.id)}
+            />
+          </Box>
+        )}
+      </DragOverlay>
+    </DndContext>
   );
 };

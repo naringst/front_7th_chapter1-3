@@ -285,6 +285,7 @@ function App() {
             currentDate={currentDate}
             holidays={holidays}
             notifiedEventIds={notifiedEvents}
+            onEventMove={moveEvent}
           />
         </Stack>
 
