@@ -1,2 +1,1 @@
-{"events":[]}
-
+{"events":[{"id":"21cb9747-c159-4889-b875-81a8048165c5","title":"이번 달 일정","date":"2025-11-06","startTime":"10:00","endTime":"11:00","description":"이번 달","location":"서울","category":"업무","repeat":{"type":"none","interval":0},"notificationTime":1},{"id":"b4c8e735-1e62-4c60-b887-cb1598cbcf00","title":"다음 달 일정","date":"2025-12-06","startTime":"10:00","endTime":"11:00","description":"다음 달","location":"서울","category":"업무","repeat":{"type":"none","interval":0},"notificationTime":1}]}
