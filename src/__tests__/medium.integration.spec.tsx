@@ -48,14 +48,13 @@ const saveSchedule = async (
   await user.type(screen.getByLabelText('종료 시간'), endTime);
   await user.type(screen.getByLabelText('설명'), description);
   await user.type(screen.getByLabelText('위치'), location);
-  await user.click(screen.getByLabelText('카테고리'));
   await user.click(within(screen.getByLabelText('카테고리')).getByRole('combobox'));
-  await user.click(screen.getByRole('option', { name: `${category}-option` }));
+  await user.click(await screen.findByRole('option', { name: `${category}-option` }));
 
   if (repeat) {
     await user.click(screen.getByLabelText('반복 일정'));
     await user.click(within(screen.getByLabelText('반복 유형')).getByRole('combobox'));
-    await user.click(screen.getByRole('option', { name: `${repeat.type}-option` }));
+    await user.click(await screen.findByRole('option', { name: `${repeat.type}-option` }));
     await user.clear(screen.getByLabelText('반복 간격'));
     await user.type(screen.getByLabelText('반복 간격'), String(repeat.interval));
     if (repeat.endDate) {

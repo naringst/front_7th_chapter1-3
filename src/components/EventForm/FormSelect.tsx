@@ -27,7 +27,7 @@ export function FormSelect({ label, id, value, onChange, options, ariaLabel }: F
         aria-label={ariaLabel}
       >
         {options.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
+          <MenuItem key={option.value} value={option.value} aria-label={`${option.value}-option`}>
             {option.label}
           </MenuItem>
         ))}
