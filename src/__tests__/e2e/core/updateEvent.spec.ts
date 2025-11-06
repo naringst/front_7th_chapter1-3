@@ -67,7 +67,7 @@ test.describe('일반 일정 수정', () => {
   test('일반 일정 수정: 겹치지 않는 일정은 정상적으로 수정된다', async ({ page, request }) => {
     // 수정할 일정 생성
     await createEvent(request, {
-      title: '기존 일정',
+      title: '첫 번째 수정 일정',
       date: '2025-11-06',
       startTime: '10:00',
       endTime: '11:00',
@@ -77,16 +77,19 @@ test.describe('일반 일정 수정', () => {
     });
     await page.reload();
 
-    // 생성된 일정이 보이는지 확인
+    // 생성한 일정이 보이는지 확인
     const eventList = page.getByTestId('event-list');
-    await expect(eventList.getByText('기존 일정')).toBeVisible();
+    await expect(eventList.getByText('첫 번째 수정 일정')).toBeVisible();
 
     // 수정 버튼 클릭
     // 제목을 포함하는 Box를 찾고, 그 안에서 Edit 버튼 찾기
-    const eventCard = eventList
-      .locator('div')
-      .filter({ hasText: /^기존 일정$/ })
-      .first();
+
+    // 수정 버튼 클릭
+    // 제목을 포함하는 Box를 찾고, 그 안에서 Edit 버튼 찾기
+    const eventTitle = eventList.getByText('첫 번째 수정 일정');
+    // 제목이 있는 Box를 찾기 위해 부모를 따라 올라감
+    // Typography -> Stack(direction="row") -> Stack(왼쪽) -> Stack(justifyContent) -> Box
+    const eventCard = eventTitle.locator('..').locator('..').locator('..').locator('..');
     await eventCard.getByRole('button', { name: 'Edit event' }).click();
 
     // 폼이 수정 모드로 변경되었는지 확인
@@ -110,7 +113,7 @@ test.describe('일반 일정 수정', () => {
     await expect(eventList.getByText('수정된 설명')).toBeVisible();
 
     // 이전 일정이 사라졌는지 확인
-    await expect(eventList.getByText('기존 일정')).not.toBeVisible();
+    await expect(eventList.getByText('첫 번째 수정 일정')).not.toBeVisible();
   });
 
   test('일정 수정 시 겹침 경고 Dialog가 표시되고, "계속 진행"으로 수정할 수 있다', async ({
@@ -204,7 +207,7 @@ test.describe('일반 일정 수정', () => {
     await page.getByRole('button', { name: '일정 수정' }).click();
 
     // 겹침 경고 Dialog 확인
-    const dialog = page.getByRole('dialog');
+    const dialog = page.getByRole('dialog').filter({ hasText: '일정 겹침 경고' });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText('일정 겹침 경고')).toBeVisible();
 
