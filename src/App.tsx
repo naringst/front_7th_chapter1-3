@@ -65,7 +65,9 @@ function App() {
     date,
     setDate,
     startTime,
+    setStartTime,
     endTime,
+    setEndTime,
     description,
     location,
     category,
@@ -250,6 +252,16 @@ function App() {
     resetForm();
   };
 
+  const handleCalendarCellClick = (dateId: string) => {
+    setDate(dateId);
+    if (!startTime) {
+      setStartTime('09:00');
+    }
+    if (!endTime) {
+      setEndTime('10:00');
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', height: '100vh', margin: 'auto', p: 5 }}>
       <Stack direction="row" spacing={6} sx={{ height: '100%' }}>
@@ -287,7 +299,7 @@ function App() {
             holidays={holidays}
             notifiedEventIds={notifiedEvents}
             onEventMove={moveEvent}
-            onCellClick={setDate}
+            onCellClick={handleCalendarCellClick}
           />
         </Stack>
 
